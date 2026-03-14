@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FlowPilot — Run Your Team's Workflow in One Place</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #0d0f14;
+    --slate: #1b1f2e;
+    --mid: #2e3347;
+    --wire: #3d4260;
+    --muted: #7b82a0;
+    --soft: #b0b5cc;
+    --paper: #f4f3ef;
+    --white: #ffffff;
+    --lime: #b8ff57;
+    --lime-dim: #8fd438;
+    --radius: 3px;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--ink);
+    color: var(--white);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 17px;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  /* ─── NAV ─── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 20px 60px;
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+    backdrop-filter: blur(14px);
+    background: rgba(13,15,20,0.82);
+  }
+  .logo {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800; font-size: 20px;
+    letter-spacing: -0.5px;
+    color: var(--white);
+    text-decoration: none;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .logo-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--lime);
+    display: inline-block;
+  }
+  .nav-links {
+    display: flex; gap: 36px; list-style: none;
+  }
+  .nav-links a {
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 14px; font-weight: 400;
+    letter-spacing: 0.2px;
+    transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--white); }
+  .nav-cta {
+    background: var(--lime);
+    color: var(--ink);
+    padding: 10px 22px;
+    border-radius: var(--radius);
+    font-size: 14px; font-weight: 600;
+    text-decoration: none;
+    font-family: 'Syne', sans-serif;
+    letter-spacing: 0.2px;
+    transition: background 0.2s, transform 0.15s;
+  }
+  .nav-cta:hover { background: var(--lime-dim); transform: translateY(-1px); }
+
+  /* ─── HERO ─── */
+  .hero {
+    min-height: 100vh;
+    display: flex; flex-direction: column; justify-content: center;
+    padding: 160px 60px 100px;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero-grid-bg {
+    position: absolute; inset: 0; z-index: 0;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+    background-size: 60px 60px;
+    mask-image: radial-gradient(ellipse 80% 60% at 50% 40%, black 30%, transparent 100%);
+  }
+  .hero-glow {
+    position: absolute; top: -120px; left: 50%;
+    transform: translateX(-50%);
+    width: 700px; height: 500px;
+    background: radial-gradient(ellipse, rgba(184,255,87,0.12) 0%, transparent 70%);
+    z-index: 0; pointer-events: none;
+  }
+  .hero-content { position: relative; z-index: 1; max-width: 900px; }
+  .hero-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: rgba(184,255,87,0.1);
+    border: 1px solid rgba(184,255,87,0.25);
+    color: var(--lime);
+    font-size: 12px; font-weight: 500;
+    padding: 6px 14px; border-radius: 20px;
+    margin-bottom: 36px;
+    letter-spacing: 0.8px; text-transform: uppercase;
+    font-family: 'Syne', sans-serif;
+  }
+  h1 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: clamp(46px, 7vw, 88px);
+    line-height: 1.0;
+    letter-spacing: -2.5px;
+    color: var(--white);
+    margin-bottom: 28px;
+  }
+  h1 em {
+    font-style: normal;
+    color: var(--lime);
+  }
+  .hero-sub {
+    font-size: clamp(16px, 2.2vw, 20px);
+    color: var(--soft);
+    max-width: 560px;
+    line-height: 1.6;
+    font-weight: 300;
+    margin-bottom: 48px;
+  }
+  .hero-actions {
+    display: flex; align-items: center; gap: 20px; flex-wrap: wrap;
+  }
+  .btn-primary {
+    background: var(--lime);
+    color: var(--ink);
+    padding: 16px 32px;
+    border-radius: var(--radius);
+    font-size: 15px; font-weight: 700;
+    text-decoration: none;
+    font-family: 'Syne', sans-serif;
+    letter-spacing: 0.2px;
+    transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+    display: inline-block;
+  }
+  .btn-primary:hover {
+    background: var(--lime-dim);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(184,255,87,0.25);
+  }
+  .btn-ghost {
+    color: var(--muted);
+    font-size: 14px;
+    text-decoration: none;
+    display: flex; align-items: center; gap: 6px;
+    transition: color 0.2s;
+  }
+  .btn-ghost:hover { color: var(--white); }
+  .btn-ghost::after { content: '→'; transition: transform 0.2s; }
+  .btn-ghost:hover::after { transform: translateX(3px); }
+  .hero-proof {
+    margin-top: 72px;
+    display: flex; align-items: center; gap: 20px;
+  }
+  .proof-avatars {
+    display: flex;
+  }
+  .proof-avatars span {
+    width: 32px; height: 32px; border-radius: 50%;
+    border: 2px solid var(--ink);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 700;
+    font-family: 'Syne', sans-serif;
+    margin-left: -8px;
+  }
+  .proof-avatars span:first-child { margin-left: 0; }
+  .av1 { background: #4f7ff0; }
+  .av2 { background: #e07b39; }
+  .av3 { background: #9b59d0; }
+  .av4 { background: #2dbd7e; }
+  .proof-text { font-size: 13px; color: var(--muted); }
+  .proof-text strong { color: var(--soft); }
+
+  /* ─── PROBLEM ─── */
+  .section { padding: 120px 60px; }
+  .section-label {
+    font-family: 'Syne', sans-serif;
+    font-size: 11px; font-weight: 700;
+    letter-spacing: 2px; text-transform: uppercase;
+    color: var(--lime);
+    margin-bottom: 20px;
+  }
+  .problem {
+    background: var(--slate);
+    border-top: 1px solid var(--wire);
+    border-bottom: 1px solid var(--wire);
+  }
+  .problem-inner {
+    max-width: 1100px; margin: 0 auto;
+    display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center;
+  }
+  h2 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: clamp(30px, 4vw, 48px);
+    line-height: 1.1;
+    letter-spacing: -1.2px;
+    color: var(--white);
+    margin-bottom: 24px;
+  }
+  .problem-body p {
+    color: var(--soft);
+    font-weight: 300;
+    margin-bottom: 16px;
+    font-size: 16px;
+  }
+  .chaos-stack {
+    display: flex; flex-direction: column; gap: 12px;
+  }
+  .chaos-item {
+    background: var(--mid);
+    border: 1px solid var(--wire);
+    border-radius: 6px;
+    padding: 16px 20px;
+    display: flex; align-items: center; gap: 14px;
+    font-size: 14px; color: var(--soft);
+    position: relative;
+    overflow: hidden;
+  }
+  .chaos-item::before {
+    content: '';
+    position: absolute; left: 0; top: 0; bottom: 0;
+    width: 3px;
+    background: #e05252;
+  }
+  .chaos-icon {
+    font-size: 18px; flex-shrink: 0;
+  }
+
+  /* ─── SOLUTION ─── */
+  .solution-inner { max-width: 1100px; margin: 0 auto; }
+  .solution-header { max-width: 640px; margin-bottom: 60px; }
+  .solution-body {
+    color: var(--soft); font-weight: 300; font-size: 17px; line-height: 1.7;
+  }
+  .solution-body p { margin-bottom: 16px; }
+  .solution-callout {
+    background: rgba(184,255,87,0.06);
+    border: 1px solid rgba(184,255,87,0.2);
+    border-radius: 6px;
+    padding: 20px 24px;
+    color: var(--lime);
+    font-family: 'Syne', sans-serif;
+    font-size: 15px; font-weight: 600;
+    margin-top: 32px;
+    letter-spacing: -0.2px;
+  }
+
+  /* ─── FEATURES ─── */
+  .features { background: var(--slate); border-top: 1px solid var(--wire); border-bottom: 1px solid var(--wire); }
+  .features-inner { max-width: 1100px; margin: 0 auto; }
+  .features-header { max-width: 500px; margin-bottom: 64px; }
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2px;
+  }
+  .feature-card {
+    background: var(--mid);
+    padding: 40px 36px;
+    position: relative;
+    transition: background 0.2s;
+  }
+  .feature-card:hover { background: #343a55; }
+  .feature-card:first-child { border-radius: 6px 0 0 6px; }
+  .feature-card:last-child { border-radius: 0 6px 6px 0; }
+  .feature-num {
+    font-family: 'Syne', sans-serif;
+    font-size: 11px; font-weight: 700;
+    letter-spacing: 2px; color: var(--wire);
+    margin-bottom: 24px;
+  }
+  .feature-icon {
+    width: 44px; height: 44px; border-radius: 8px;
+    background: rgba(184,255,87,0.1);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; margin-bottom: 20px;
+    border: 1px solid rgba(184,255,87,0.15);
+  }
+  h3 {
+    font-family: 'Syne', sans-serif;
+    font-size: 18px; font-weight: 700;
+    letter-spacing: -0.4px;
+    color: var(--white);
+    margin-bottom: 12px;
+  }
+  .feature-desc { color: var(--muted); font-size: 14px; line-height: 1.65; font-weight: 400; }
+
+  /* ─── PROOF ─── */
+  .proof { max-width: 1100px; margin: 0 auto; }
+  .proof-inner {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: start;
+  }
+  .trust-label {
+    color: var(--muted); font-size: 13px; font-weight: 300;
+    margin-bottom: 48px; letter-spacing: 0.2px;
+  }
+  .stats-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 24px;
+  }
+  .stat-box {
+    background: var(--slate);
+    border: 1px solid var(--wire);
+    border-radius: 6px;
+    padding: 28px 24px;
+  }
+  .stat-num {
+    font-family: 'Syne', sans-serif;
+    font-size: 38px; font-weight: 800;
+    color: var(--lime);
+    letter-spacing: -1.5px;
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+  .stat-label { color: var(--muted); font-size: 13px; }
+
+  .testimonial {
+    background: var(--slate);
+    border: 1px solid var(--wire);
+    border-radius: 6px;
+    padding: 40px 36px;
+    position: relative;
+  }
+  .testimonial::before {
+    content: '"';
+    position: absolute; top: -10px; left: 30px;
+    font-family: 'Syne', sans-serif;
+    font-size: 80px; line-height: 1;
+    color: var(--lime);
+    opacity: 0.4;
+  }
+  .testimonial-quote {
+    font-size: 17px; color: var(--soft);
+    font-weight: 300; line-height: 1.7;
+    font-style: italic;
+    margin-bottom: 28px;
+  }
+  .testimonial-attr {
+    display: flex; align-items: center; gap: 14px;
+  }
+  .attr-avatar {
+    width: 40px; height: 40px; border-radius: 50%;
+    background: linear-gradient(135deg, #4f7ff0, #9b59d0);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Syne', sans-serif;
+    font-size: 14px; font-weight: 700; color: white;
+    flex-shrink: 0;
+  }
+  .attr-name { font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 700; color: var(--white); }
+  .attr-role { font-size: 12px; color: var(--muted); }
+
+  /* ─── FINAL CTA ─── */
+  .final-cta {
+    background: var(--slate);
+    border-top: 1px solid var(--wire);
+  }
+  .final-cta-inner {
+    max-width: 700px; margin: 0 auto;
+    text-align: center;
+  }
+  .final-cta h2 { margin-bottom: 16px; }
+  .final-cta p {
+    color: var(--soft); font-weight: 300; font-size: 17px;
+    margin-bottom: 44px; line-height: 1.6;
+  }
+  .final-actions {
+    display: flex; justify-content: center; align-items: center; gap: 16px; flex-wrap: wrap;
+  }
+  .fine-print {
+    margin-top: 20px; font-size: 12px; color: var(--muted);
+    letter-spacing: 0.2px;
+  }
+
+  /* ─── FOOTER ─── */
+  footer {
+    padding: 32px 60px;
+    border-top: 1px solid var(--wire);
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .footer-logo {
+    font-family: 'Syne', sans-serif; font-weight: 800;
+    font-size: 16px; color: var(--muted);
+    display: flex; align-items: center; gap: 6px;
+  }
+  .footer-note { font-size: 12px; color: var(--wire); }
+
+  /* ─── DIVIDER ─── */
+  .section-divider {
+    height: 1px; background: var(--wire);
+    margin: 0 60px;
+  }
+
+  /* ─── ANIMATIONS ─── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .hero-badge { animation: fadeUp 0.5s ease both; }
+  h1 { animation: fadeUp 0.6s 0.1s ease both; }
+  .hero-sub { animation: fadeUp 0.6s 0.2s ease both; }
+  .hero-actions { animation: fadeUp 0.6s 0.3s ease both; }
+  .hero-proof { animation: fadeUp 0.6s 0.4s ease both; }
+
+  /* ─── RESPONSIVE ─── */
+  @media (max-width: 900px) {
+    nav { padding: 18px 28px; }
+    .nav-links { display: none; }
+    .hero { padding: 130px 28px 80px; }
+    .section { padding: 80px 28px; }
+    .problem-inner { grid-template-columns: 1fr; gap: 48px; }
+    .features-grid { grid-template-columns: 1fr; gap: 2px; }
+    .feature-card:first-child { border-radius: 6px 6px 0 0; }
+    .feature-card:last-child { border-radius: 0 0 6px 6px; }
+    .proof-inner { grid-template-columns: 1fr; gap: 48px; }
+    footer { padding: 24px 28px; flex-direction: column; gap: 12px; text-align: center; }
+    .section-divider { margin: 0 28px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="logo"><span class="logo-dot"></span>FlowPilot</a>
+  <ul class="nav-links">
+    <li><a href="#">Features</a></li>
+    <li><a href="#">Pricing</a></li>
+    <li><a href="#">Customers</a></li>
+    <li><a href="#">Docs</a></li>
+  </ul>
+  <a href="#" class="nav-cta">Start Free Trial</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-grid-bg"></div>
+  <div class="hero-glow"></div>
+  <div class="hero-content">
+    <div class="hero-badge">
+      <span class="logo-dot"></span>
+      Now in public beta
+    </div>
+    <h1>Run Your Team's<br>Workflow in <em>One Place</em></h1>
+    <p class="hero-sub">FlowPilot brings tasks, automation, and communication together — so your team can stop juggling tools and start shipping work that matters.</p>
+    <div class="hero-actions">
+      <a href="#" class="btn-primary">Start Your Free 14-Day Trial</a>
+      <a href="#" class="btn-ghost">See how it works</a>
+    </div>
+    <div class="hero-proof">
+      <div class="proof-avatars">
+        <span class="av1">JM</span>
+        <span class="av2">SR</span>
+        <span class="av3">KL</span>
+        <span class="av4">OB</span>
+      </div>
+      <p class="proof-text"><strong>400+ teams</strong> replaced their tool stack with FlowPilot</p>
+    </div>
+  </div>
+</section>
+
+<!-- PROBLEM -->
+<section class="section problem">
+  <div class="problem-inner">
+    <div class="problem-body">
+      <div class="section-label">The problem</div>
+      <h2>Your tools are working against you</h2>
+      <p>Most teams don't have a productivity problem. They have a fragmentation problem.</p>
+      <p>Tasks live in one platform. Status updates happen in another. Automations require a third. The result isn't just inefficiency — it's the slow erosion of clarity that makes good work hard.</p>
+    </div>
+    <div class="chaos-stack">
+      <div class="chaos-item">
+        <span class="chaos-icon">📋</span>
+        <span>Tasks scattered across Asana, Notion, and spreadsheets</span>
+      </div>
+      <div class="chaos-item">
+        <span class="chaos-icon">💬</span>
+        <span>Updates buried in Slack threads, disconnected from the work</span>
+      </div>
+      <div class="chaos-item">
+        <span class="chaos-icon">⚙️</span>
+        <span>Automations that require a dedicated ops person to maintain</span>
+      </div>
+      <div class="chaos-item">
+        <span class="chaos-icon">🔍</span>
+        <span>Deadlines missed because information was simply... somewhere else</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SOLUTION -->
+<section class="section">
+  <div class="solution-inner">
+    <div class="solution-header">
+      <div class="section-label">The solution</div>
+      <h2>One platform. The whole workflow.</h2>
+    </div>
+    <div class="solution-body">
+      <p>FlowPilot is built on a simple premise: the tools your team uses to plan, communicate, and automate work should all speak the same language.</p>
+      <p>Plan projects, automate routine tasks, and keep conversations directly connected to the work — without switching tabs, re-syncing data, or maintaining a patchwork of integrations.</p>
+      <div class="solution-callout">
+        No switching tabs. No lost updates. Just clear, organized workflows that move as fast as your team does.
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- FEATURES -->
+<section class="section features">
+  <div class="features-inner">
+    <div class="features-header">
+      <div class="section-label">What's inside</div>
+      <h2>Everything your team needs — nothing it doesn't</h2>
+    </div>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-num">01</div>
+        <div class="feature-icon">✦</div>
+        <h3>Unified Task Management</h3>
+        <p class="feature-desc">Track projects, assign work, and monitor progress in one streamlined dashboard. No more checking five places to understand where things stand.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-num">02</div>
+        <div class="feature-icon">⚡</div>
+        <h3>Smart Workflow Automation</h3>
+        <p class="feature-desc">Automate the repetitive work that quietly drains your team's hours — status updates, handoffs, reminders — so everyone can stay focused on high-impact tasks.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-num">03</div>
+        <div class="feature-icon">🌐</div>
+        <h3>Built for Remote Teams</h3>
+        <p class="feature-desc">Keep discussions, updates, and files connected to the projects they belong to. Context travels with the work, so nothing gets lost in translation.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROOF -->
+<section class="section">
+  <div class="proof">
+    <div class="section-label">Social proof</div>
+    <div class="proof-inner">
+      <div>
+        <p class="trust-label">Trusted by growing teams who want less chaos and more clarity</p>
+        <div class="stats-grid">
+          <div class="stat-box">
+            <div class="stat-num">3×</div>
+            <div class="stat-label">faster project setup vs. tool stacks</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-num">87%</div>
+            <div class="stat-label">of users reduce their app count within a month</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-num">14</div>
+            <div class="stat-label">days to try it, no card required</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-num">∞</div>
+            <div class="stat-label">fewer "wait, where's that doc?" moments</div>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial">
+        <p class="testimonial-quote">FlowPilot replaced three separate tools for our team. We used to spend Monday mornings just figuring out where things stood. Now we just open one tab and start working.</p>
+        <div class="testimonial-attr">
+          <div class="attr-avatar">SM</div>
+          <div>
+            <div class="attr-name">Sarah M.</div>
+            <div class="attr-role">Product Manager, Series A Tech Startup</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FINAL CTA -->
+<section class="section final-cta">
+  <div class="final-cta-inner">
+    <div class="section-label">Ready to simplify?</div>
+    <h2>Stop managing tools.<br>Start managing work.</h2>
+    <p>Your team is capable of great things. The only thing standing between them and their best work is the friction of fragmented software. FlowPilot removes it.</p>
+    <div class="final-actions">
+      <a href="#" class="btn-primary">Start Your Free Trial Today</a>
+    </div>
+    <p class="fine-print">No credit card required · 14-day free trial · Cancel any time</p>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo"><span class="logo-dot"></span> FlowPilot</div>
+  <p class="footer-note">© 2025 FlowPilot, Inc. · All rights reserved.</p>
+</footer>
+
+</body>
+</html>
